@@ -1,0 +1,110 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    
+    env:
+      NODE_ENV: test
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: ci_test_secret_key_at_least_32_chars_long
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ghosttools_test
+      OPENAI_API_KEY: sk_test_mock_key_for_tests
+      STRIPE_SECRET_KEY: sk_test_mock_key_for_tests
+      STRIPE_PUBLISHABLE_KEY: pk_test_mock_key_for_tests
+      STRIPE_WEBHOOK_SECRET: whsec_mock_key_for_tests
+      STRIPE_STARTER_PRICE_ID: price_mock_starter
+      STRIPE_PRO_PRICE_ID: price_mock_pro
+      UPSTASH_REDIS_REST_URL: https://example.upstash.io
+      UPSTASH_REDIS_REST_TOKEN: mock_token_for_tests
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ghosttools_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Generate Prisma client
+        run: npx prisma generate
+      
+      - name: Push database schema
+        run: npx prisma db push --force-reset
+      
+      - name: Run linting
+        run: npm run lint
+      
+      - name: Run type checking
+        run: npm run typecheck
+      
+      - name: Run tests with coverage
+        run: npm run test:ci
+      
+      - name: Upload test coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage
+          path: coverage/
+      
+      - name: Build application
+        run: npm run build
+  
+  deploy:
+    name: Deploy to Vercel
+    needs: test
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+      
+      - name: Deploy to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          if [[ -z "$VERCEL_TOKEN" || -z "$VERCEL_ORG_ID" || -z "$VERCEL_PROJECT_ID" ]]; then
+            echo "Vercel deployment credentials not set. Skipping deployment."
+            exit 0
+          fi
+          
+          # Deploy to production
+          vercel deploy --prod --token=$VERCEL_TOKEN

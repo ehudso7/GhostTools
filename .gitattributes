@@ -1,0 +1,28 @@
+# Set default behavior to automatically normalize line endings
+* text=auto
+
+# Explicitly declare text files to avoid binary blob issues
+*.js text
+*.ts text
+*.tsx text
+*.json text
+*.html text
+*.css text
+*.md text
+*.yml text
+*.yaml text
+*.prisma text
+
+# Denote binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.zip binary
+*.pdf binary
+
+# Handle potential secrets files with special attributes
+.env.* text eol=lf
+*.key text eol=lf
+EOL < /dev/null

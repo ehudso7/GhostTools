@@ -1,0 +1,96 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env
+.env.local
+.env.test
+.env.example
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*
+
+# credentials and secrets
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.der
+service-account*.json
+firebase-*.json
+.npmrc
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# prisma
+/prisma/migrations/*
+
+# sentry
+.sentryclirc
+sentry.properties
+.sentry-native/
+
+# Stripe
+stripe-secrets.json
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+dumps/
+backups/
+
+# logs
+logs
+*.log
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Temporary files
+temp/
+tmp/
+.temp/
+.tmp/
+*.temp
+
+# Production files
+.production
+.vercel-production
+.netlify-production
+
+# Generated files
+.generated
+dist-generated/
+*.generated.*
