@@ -25,4 +25,3 @@
 # Handle potential secrets files with special attributes
 .env.* text eol=lf
 *.key text eol=lf
-EOL < /dev/null
